@@ -1,0 +1,178 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DDNScover.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        x:Class="DDNScover.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="DDNScover"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        TransparencyLevelHint="Mica"
+        Background="#181818"
+        Foreground="#E0E0E0"
+        FontFamily="Segoe UI, Inter, SansSerif">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <!-- Modern Button Style -->
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#007ACC"/>
+        </Style>
+
+        <!-- Primary Action Button -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#0062A3"/>
+        </Style>
+        
+        <!-- Modern TextBox -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#252526"/>
+            <Setter Property="BorderBrush" Value="#3E3E42"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="CaretBrush" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border">
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+        </Style>
+
+        <!-- DataGrid Header Style -->
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10,12"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="SeparatorBrush" Value="#333333"/>
+        </Style>
+        <Style Selector="DataGridRow">
+             <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+            <Setter Property="Fill" Value="#252526"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Top Application Bar area -->
+        <Grid Grid.Row="0" Background="#202020" Height="80" ColumnDefinitions="Auto, *, Auto">
+            <!-- App Title -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="20,0">
+                <TextBlock Text="DDNScover" FontSize="22" FontWeight="Bold" Foreground="White" LetterSpacing="0.5"/>
+                <TextBlock Text="RECONNAISSANCE" FontSize="10" Foreground="#666666" FontWeight="Bold"/>
+            </StackPanel>
+
+            <!-- Search Bar Centralized -->
+            <Grid Grid.Column="1" VerticalAlignment="Center" MaxWidth="600" Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox Grid.Column="0" Text="{Binding SearchQuery}" Watermark="Target domain (e.g. st1.net.br)" 
+                         VerticalAlignment="Center" Height="40" Margin="0,0,10,0"/>
+
+                <Button Grid.Column="1" Command="{Binding SearchCommand}" Classes="primary" Height="40" Margin="0,0,10,0">
+                   <TextBlock Text="SEARCH" VerticalAlignment="Center"/>
+                </Button>
+
+                <Button Grid.Column="2" Command="{Binding ExportCommand}" IsVisible="{Binding HasResults}" Height="40" Background="#2D2D30">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <!-- Simple icon representation -->
+                        <PathIcon Data="M19,9H15V3H9V9H5L12,16L19,9M5,18V20H19V18H5Z" Width="16" Height="16" Foreground="#AAAAAA"/>
+                        <TextBlock Text="Export" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+            
+            <!-- Window Drag Area (transparent fill for hit testing) -->
+            <Panel Grid.ColumnSpan="3" IsHitTestVisible="False"/>
+        </Grid>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1" Margin="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Status Bar / Info -->
+            <Border Grid.Row="0" Background="#252526" Padding="20,10" BorderBrush="#333333" BorderThickness="0,1">
+                <Grid ColumnDefinitions="*, Auto">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Foreground="#AAAAAA"/>
+                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" Width="150" Height="2" VerticalAlignment="Center"/>
+                    </StackPanel> 
+                    <TextBlock Grid.Column="1" Text="{Binding SearchResults.Count, StringFormat='Results: {0}'}" 
+                               Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- DataGrid -->
+            <DataGrid Grid.Row="1" ItemsSource="{Binding SearchResults}" AutoGenerateColumns="False" IsReadOnly="True" 
+                      GridLinesVisibility="Horizontal" BorderThickness="0"
+                      HeadersVisibility="Column" Background="#181818" RowBackground="#181818" Foreground="#CCCCCC">
+                
+                <DataGrid.Columns>
+                    <!-- Status Indicator -->
+                    <DataGridTemplateColumn Header="STATUS" Width="100">
+                         <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="5">
+                                    <Ellipse Width="8" Height="8" Fill="{Binding StatusColor}"/>
+                                    <ToolTip.Tip>
+                                        <TextBlock Text="{Binding Status}"/>
+                                    </ToolTip.Tip>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="HOSTNAME" Binding="{Binding Hostname}" Width="2*" FontSize="13"/>
+                    
+                    <DataGridTextColumn Header="SOURCE" Binding="{Binding Source}" Width="*" Foreground="#666666" FontSize="12"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#181818" Padding="10">
+                <TextBlock Text="DDNScover v1.0" HorizontalAlignment="Center" Foreground="#444444" FontSize="10"/>
+            </Border>
+        </Grid>
+    </Grid>
+
+</Window>
